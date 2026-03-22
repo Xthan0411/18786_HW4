@@ -17,16 +17,24 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Load data
 # ==========================================
 def get_dataloaders():
-    # Pre-process
-    transform = transforms.Compose([
+    # Pre-process with data augmentation(RandomCrop + RandomHorizontalFlip + RandomRotation)
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4), 
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
         transforms.ToTensor(),
         transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
     ])
 
-    train_dataset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform)
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+    ])
+
+    train_dataset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
 
-    test_dataset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=transform)
+    test_dataset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=transform_test)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2)
 
     return train_loader, test_loader, test_dataset.classes
@@ -56,7 +64,8 @@ class SimpleFCNN(nn.Module):
 # ==========================================
 def train_and_evaluate(model, train_loader, test_loader):
     criterion = nn.CrossEntropyLoss() # Loss
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE) # Optimizer
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-4) # Optimizer
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS)
     
     train_losses, test_losses = [], []
     train_accs, test_accs = [], []
@@ -107,8 +116,12 @@ def train_and_evaluate(model, train_loader, test_loader):
         epoch_test_acc = 100 * correct_test / total_test
         test_losses.append(epoch_test_loss)
         test_accs.append(epoch_test_acc)
+
+        # Update learning rate
+        scheduler.step()
+        current_lr = scheduler.get_last_lr()[0]
         
-        print(f"Epoch [{epoch+1}/{EPOCHS}] - "
+        print(f"Epoch [{epoch+1}/{EPOCHS}] - LR: {current_lr:.6f} |"
               f"Train Loss: {epoch_train_loss:.4f}, Train Acc: {epoch_train_acc:.2f}% | "
               f"Test Loss: {epoch_test_loss:.4f}, Test Acc: {epoch_test_acc:.2f}%")
 
