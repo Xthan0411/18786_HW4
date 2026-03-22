@@ -115,7 +115,7 @@ class MyMaxPool2D(nn.Module):
         ## Hint: what should be the default stride_size if it is not given? 
         ## Think about the relationship with kernel_size
         # ----- TODO -----
-        self.stride = None
+        self.stride = stride if stride is not None else kernel_size
 
         raise NotImplementedError
 
@@ -145,16 +145,30 @@ class MyMaxPool2D(nn.Module):
         
         ## Derive the output size
         # ----- TODO -----
-        self.output_height   = None
-        self.output_width    = None
-        self.output_channels = None
         self.x_pool_out      = None
+        self.output_channels = self.channel
+        self.output_height   = (self.input_height - self.kernel_size) // self.stride + 1
+        self.output_width    = (self.input_width - self.kernel_size) // self.stride + 1
 
         ## Maxpooling process
         ## Feel free to use for loop
         # ----- TODO -----
 
-        raise NotImplementedError
+        # (batch_size, channel * kernel_size * kernel_size, output_height * output_width)
+        unfolded = F.unfold(x, kernel_size=self.kernel_size, stride=self.stride)
+        
+        # Resahape to isolate each channel
+        # (batch_size, channel, kernel_size * kernel_size, output_height * output_width)
+        unfolded = unfolded.view(self.batch_size, self.channel, self.kernel_size * self.kernel_size, -1)
+        
+        # Get max value at channel dim
+        # (batch_size, channel, output_height * output_width)
+        pool_out = unfolded.max(dim=2)[0]
+        
+        # Restore to tensor
+        self.x_pool_out = pool_out.view(self.batch_size, self.output_channels, self.output_height, self.output_width)
+
+        return self.x_pool_out
 
 
 if __name__ == "__main__":
