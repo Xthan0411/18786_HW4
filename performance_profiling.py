@@ -126,14 +126,14 @@ def compute_ap(detections, ground_truths, iou_threshold=0.5):
 
 
 def run_yolo_pipeline(dataset, indices):
-    local_weights = "yolov8n.pt"
+    local_weights = "./yolov8n.pt"
     
     if not os.path.exists(local_weights):
         print(f"CRITICAL ERROR: '{local_weights}' not found in the local directory.")
         print("Please ensure the file was successfully downloaded via browser or 'wget -U'.")
         sys.exit(1)
     print(f"Loading weights from local path: {os.path.abspath(local_weights)}")
-    
+
     model = YOLO(local_weights)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model.to(device)
