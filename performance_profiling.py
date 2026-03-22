@@ -228,6 +228,10 @@ def evaluate_model(all_detections, all_gts):
 # ==============================================================================
 
 if __name__ == "__main__":
+    if not os.path.exists("yolov8n.pt"):
+        print("Downloading YOLOv8n weights manually...")
+        os.system("wget -c https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt")
+        
     # Download repo
     coco_root = "./coco"
     val_img_dir = os.path.join(coco_root, "val2017")
