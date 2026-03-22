@@ -154,16 +154,15 @@ def improved_detection(img_path, threshold=0.7):
                 
                 label = categories[class_id].lower()
                 # only focus on cats and dogs
-                dog_keywords = ['dog', 'terrier', 'retriever', 'spaniel', 'shepherd', 'hound', 'puppy']
-                cat_keywords = ['cat', 'tabby', 'persian', 'siamese', 'egyptian', 'lynx']
-                is_dog = any(kw in label for kw in dog_keywords)
-                is_cat = any(kw in label for kw in cat_keywords)
 
-                if score > threshold and (is_cat or is_dog):
-                    final_label = "Cat" if is_cat else "Dog"
-                    candidate_boxes.append([x, y, win_size, win_size])
-                    candidate_scores.append(score.item())
-                    candidate_labels.append(f"{final_label} ({label})")
+                if score > threshold:
+                    is_dog = (151 <= class_id <= 268)
+                    is_cat = (281 <= class_id <= 285)
+                    if is_dog or is_cat:
+                        final_label = "Dog" if is_dog else "Cat"
+                        candidate_boxes.append([x, y, win_size, win_size])
+                        candidate_scores.append(score.item())
+                        candidate_labels.append(f"{final_label} ({categories[class_id]})")
 
     final_indices = nms(candidate_boxes, candidate_scores, iou_threshold=0.2)
     
