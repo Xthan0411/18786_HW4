@@ -1,5 +1,6 @@
 import time
 import os
+import sys
 import torch
 import torch
 import torchvision
@@ -125,7 +126,15 @@ def compute_ap(detections, ground_truths, iou_threshold=0.5):
 
 
 def run_yolo_pipeline(dataset, indices):
-    model = YOLO('yolov8n.pt')
+    local_weights = "yolov8n.pt"
+    
+    if not os.path.exists(local_weights):
+        print(f"CRITICAL ERROR: '{local_weights}' not found in the local directory.")
+        print("Please ensure the file was successfully downloaded via browser or 'wget -U'.")
+        sys.exit(1)
+    print(f"Loading weights from local path: {os.path.abspath(local_weights)}")
+    
+    model = YOLO(local_weights)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model.to(device)
     
@@ -231,7 +240,7 @@ if __name__ == "__main__":
     if not os.path.exists("yolov8n.pt"):
         print("Downloading YOLOv8n weights manually...")
         os.system("wget -c https://github.com/ultralytics/assets/releases/download/v8.1.0/yolov8n.pt")
-        
+
     # Download repo
     coco_root = "./coco"
     val_img_dir = os.path.join(coco_root, "val2017")
