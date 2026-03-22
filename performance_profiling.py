@@ -8,19 +8,6 @@ from ultralytics import YOLO
 import numpy as np
 from tqdm import tqdm
 
-COCO_VAL_PATH = "/content/coco/val2017"
-COCO_ANN_PATH = "/content/coco/annotations/instances_val2017.json"
-
-transform = torchvision.transforms.Compose([
-    torchvision.transforms.ToTensor(),
-])
-
-# Load dataset
-coco_dataset = CocoDetection(root=COCO_VAL_PATH, annFile=COCO_ANN_PATH, transform=transform)
-
-# Randomly pick 100 images for latency 
-indices = np.random.choice(len(coco_dataset), 100, replace=False)
-subset_indices = indices.tolist()
 
 
 def measure_latency(model, device, input_size=(3, 640, 640)):
@@ -268,7 +255,10 @@ if __name__ == "__main__":
     else:
         print("Dataset already exists. Skipping download.")
 
-    
+    transform = torchvision.transforms.Compose([
+        torchvision.transforms.ToTensor(),
+    ])
+
     print("Initializing COCO dataset...")
     dataset = CocoDetection(root=val_img_dir, annFile=ann_file, transform=transform)
     
