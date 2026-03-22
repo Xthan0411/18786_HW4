@@ -116,37 +116,51 @@ def train_and_evaluate(model, train_loader, test_loader):
 
 # Visualization
 # ==========================================
-def plot_curves(train_losses, test_losses, train_accs, test_accs):
+def plot_curves(train_losses, test_losses, train_accs, test_accs, model_type):
+    if model_type == 'FCNN':
+        filename1 = 'fcnn_loss_curve.png'
+        filename2 = 'fcnn_acc_curve.png'
+
+    elif model_type == 'CNN':
+        filename1 = 'cnn_loss_curve.png'
+        filename2 = 'cnn_acc_curve.png'
+
     # Plot and save Loss and Acc curves
     epochs = range(1, len(train_losses) + 1)
 
     plt.figure(figsize=(8, 6))
     plt.plot(epochs, train_losses, label='Train Loss', marker='o', color='blue')
     plt.plot(epochs, test_losses, label='Test Loss', marker='s', color='orange')
-    plt.title('FCNN Train and Test Losses')
+    plt.title(str(model_type + 'Train and Test Losses'))
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.savefig('fcnn_loss_curve.png', dpi=300, bbox_inches='tight')
+    plt.savefig(filename1, dpi=300, bbox_inches='tight')
     plt.close()
 
     plt.figure(figsize=(8, 6))
     plt.plot(epochs, train_accs, label='Train Accuracy', marker='o', color='green')
     plt.plot(epochs, test_accs, label='Test Accuracy', marker='s', color='red')
-    plt.title('FCNN Train and Test Accuracies')
+    plt.title(str(model_type + 'Train and Test Accuracies'))
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy (%)')
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.savefig('fcnn_acc_curve.png', dpi=300, bbox_inches='tight')
+    plt.savefig(filename2, dpi=300, bbox_inches='tight')
     plt.close()
 
     print('Succesfully plot and save curves')
 
   
 
-def visualize_predictions(model, test_loader, classes):
+def visualize_predictions(model, test_loader, classes, model_type):
+    if model_type == 'FCNN':
+        filename = 'fcnn_predictions.png'
+
+    elif model_type == 'CNN':
+        filename = 'cnn_predictions.png'
+
     # Visualization of 5 random images with their ground truth and predicted labels in captions
     model.eval()
     
@@ -195,7 +209,7 @@ def visualize_predictions(model, test_loader, classes):
         ax.set_title(f"GT: {gt_label}\nPred: {pred_label}", color=color, fontsize=10)
 
     plt.tight_layout()
-    plt.savefig('fcnn_predictions.png', dpi=300, bbox_inches='tight')
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.close()
     
     print(" Predictions image saved")
@@ -207,9 +221,10 @@ if __name__ == "__main__":
     
     model = SimpleFCNN().to(DEVICE)
     train_losses, test_losses, train_accs, test_accs = train_and_evaluate(model, train_loader, test_loader)
-    
-    plot_curves(train_losses, test_losses, train_accs, test_accs)
-    visualize_predictions(model, test_loader, classes)
+
+    model_type = 'FCNN'
+    plot_curves(train_losses, test_losses, train_accs, test_accs, model_type)
+    visualize_predictions(model, test_loader, classes, model_type)
     
     # Save model
     torch.save(model.state_dict(), "fcnn_model.pth")
