@@ -117,8 +117,6 @@ class MyMaxPool2D(nn.Module):
         # ----- TODO -----
         self.stride = stride if stride is not None else kernel_size
 
-        raise NotImplementedError
-
 
     def __call__(self, x):
         
