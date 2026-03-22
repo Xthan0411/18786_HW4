@@ -11,7 +11,7 @@ import os
 # ==========================================
 BATCH_SIZE = 128
 LEARNING_RATE = 0.001
-EPOCHS = 15
+EPOCHS = 40
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load data
