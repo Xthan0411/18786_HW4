@@ -67,13 +67,13 @@ class MyConv2D(nn.Module):
 
         self.reset_parameters()
 
-        def reset_parameters(self):
-            # Kaiming Initialization
-            nn.init.kaiming_uniform_(self.W, a=math.sqrt(5))
-            if self.bias:
-                fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.W)
-                bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
-                nn.init.uniform_(self.b, -bound, bound)
+    def reset_parameters(self):
+        # Kaiming Initialization
+        nn.init.kaiming_uniform_(self.W, a=math.sqrt(5))
+        if self.bias:
+            fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.W)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            nn.init.uniform_(self.b, -bound, bound)
 
             
     
